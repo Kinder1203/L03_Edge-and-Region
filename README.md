@@ -128,12 +128,8 @@ if __name__ == '__main__': # 파이썬 모듈이 외부 임포트가 아닌 인�
     main() # 메인 함수를 호출합니다.
 ```
 
-### 4. 중간 결과물
-*(회색조 이미지, X축 편미분 영상, Y축 편미분 영상 등 가공 중간 단계를 기입하세요)*
-![task1_intermediate](result_images/placeholder_task1_intermediate.png)
+### 4. 최종 결과물
 
-### 5. 최종 결과물
-*(최종적으로 병합된 8비트 에지 강도 지도 및 흑백/컬러 대조 컷을 기입하세요)*
 ![task1_final_result](result_images/result_task1_sobel.png)
 
 ---
@@ -245,13 +241,8 @@ def main():
 if __name__ == '__main__': # 코드 라이브러리 차용 상황이 아닐 때만 작동토록 만들어둔 클래식 방어문입니다.
     main() # 모든 걸 관제하는 main 루틴을 본격적으로 호출 활성화시킵니다.
 ```
+### 4. 최종 결과물
 
-### 4. 중간 결과물
-*(캐니 엣지가 뽑아낸 얇은 화이트 엣지 윤곽선 매핑 단계를 이곳에 채워 넣으세요)*
-![task2_intermediate](result_images/placeholder_task2_intermediate.png)
-
-### 5. 최종 결과물
-*(가공이 끝나고 빨간 선이 직관적으로 그려진 결과 및 원본 대조 사진)*
 ![task2_final_result](result_images/result_task2_hough.png)
 
 ---
@@ -372,11 +363,6 @@ if __name__ == '__main__': # 이 문서 자체가 타 스크립트에 라이브�
     main() # 캡슐처럼 정돈된 main 로직 블록을 최종 기동하며 프로그램을 연주하기 시작합니다.
 ```
 
-### 4. 중간 결과물
-*(0과 1 데이터로 나뉘어져 도출된 이진 흑백 마스크 단계 사진을 채워주세요)*
-![task3_intermediate](result_images/placeholder_task3_intermediate.png)
-
-### 5. 최종 결과물
-*(마스크를 씌워 배경이 날아가버린 컵 사진 및 마스크, 원본 3분할 컷)*
+### 4. 최종 결과물
 ![task3_final_result](result_images/result_task3_grabcut.png)
 
