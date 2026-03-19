@@ -151,9 +151,9 @@ if __name__ == '__main__': # 파이썬 모듈이 외부 임포트가 아닌 인�
 edges = cv.Canny(gray, threshold1=100, threshold2=200)
 
 # [핵심] 튜닝 노가다가 필요한 허프 변환 파라미터들을 코드 상단에 변수화하여 가독성 증진
-hough_threshold = 50            # 직선으로 판단할 최소 교차점 수
-minLineLength = 50              # 선분의 최소 픽셀 길이 제한 (먼지 제거)
-maxLineGap = 10                 # 점선처럼 끊어진 엣지도 동일 선으로 연결해주는 허용 간극
+hough_threshold = 80            # 직선으로 판단할 최소 교차점 수
+minLineLength = 40              # 선분의 최소 픽셀 길이 제한 (먼지 제거)
+maxLineGap = 5                 # 점선처럼 끊어진 엣지도 동일 선으로 연결해주는 허용 간극
 
 # [핵심] 확률적 허프 변환 적용 및 라인 복귀
 lines = cv.HoughLinesP(edges, rho, theta, hough_threshold, 
@@ -189,9 +189,9 @@ def main():
     # 4. 투표 체계를 바탕으로 한 허프 변환(HoughLinesP)에 던져줄 예민한 하이퍼 파라미터들을 상단 블록에 변수로 일일이 분리해 줍니다.
     rho = 1                         # 원점 기준 수직 거리(r) 공간의 분해능, 해상도를 뜻합니다 (1 픽셀씩 탐색).
     theta = np.pi / 180             # 원점 기준 각도(세타) 공간의 분해능, 해상도를 뜻합니다 (1도씩 촘촘히 탐색).
-    hough_threshold = 50            # 동일 직선상에 위치했다고 투표가 쌓인 교차점 수치가 최소 50이 넘어야만 직선 판정 통과를 줍니다.
-    minLineLength = 50              # 너무 작디 작은 부스러기 노이즈 선분을 무시할 최소 제한 잣대(픽셀단위)입니다.
-    maxLineGap = 10                 # 점선으로 조각난 엣지도 동일 선상의 동료라면 하나의 길다란 직선 그룹으로 수놓도록 해주는 최대 허용 간격입니다.
+    hough_threshold = 80            # 동일 직선상에 위치했다고 투표가 쌓인 교차점 수치가 최소 80이 넘어야만 직선 판정 통과를 줍니다.
+    minLineLength = 40              # 너무 작디 작은 부스러기 노이즈 선분을 무시할 최소 제한 잣대(픽셀단위)입니다.
+    maxLineGap = 5                 # 점선으로 조각난 엣지도 동일 선상의 동료라면 하나의 길다란 직선 그룹으로 수놓도록 해주는 최대 허용 간격입니다.
     
     # 상기된 강력한 제어 파라미터를 사용해 에지 맵에서 유의미한 직선 조각들의 시작 및 끝 좌표 리스트를 돌려받습니다.
     lines = cv.HoughLinesP(edges, rho, theta, hough_threshold, 
@@ -273,12 +273,12 @@ fgdModel = np.zeros((1, 65), np.float64)
 
 # [핵심] 하드코딩 오차 방지를 위해 통계적 이미지 비율에 따른 동적 사각형 구역 산출
 h, w = img.shape[:2]
-rect = (int(w * 0.15), int(h * 0.1), int(w * 0.7), int(h * 0.8))
+rect = (10, 10, w - 20, h - 20)
 
 cv.grabCut(img, mask, rect, bgdModel, fgdModel, 5, cv.GC_INIT_WITH_RECT)
 
 # [핵심] Numpy의 강력한 where을 활용하여 GrabCut 마스크 값들을 0(배경)과 1(전경)의 이분 구조로 분리 
-mask_binary = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
+mask_binary = np.where((mask == cv.GC_PR_BGD) | (mask == cv.GC_BGD), 0, 1).astype('uint8')
 
 # [핵심] 배경 부분 행렬을 0으로 만들어 까맣게 차단 (np.newaxis를 활용한 트릭)
 result_img = img * mask_binary[:, :, np.newaxis]
@@ -308,10 +308,10 @@ def main():
     
     # 3. 객체(컵)가 정확히 머물고 있을 것으로 짐작되는 초기 바운딩 사각형(Rect) 지역을 추론하기 위해 해상도를 추출합니다.
     h, w = img.shape[:2] # 높이(Height)와 가로 폭(Width) 치수를 투플 속성에서 끄집어 가져옵니다.
-    # 임의 숫자를 하드코딩하지 않고, 이미지 가로폭의 15% 기점(x), 높이의 10% 기점(y) 같이 동적인 화면 변수 기준으로 좌표 이동을 도출합니다.
-    x, y = int(w * 0.15), int(h * 0.1) 
-    # 가로는 영상 너비의 70%만큼 채우고, 세로는 80%를 아우르는 매우 거대한 사각형 크기를 설정합니다.
-    rect_w, rect_h = int(w * 0.7), int(h * 0.8) 
+    # 임의 숫자를 하드코딩하지 않고, 이미지 가로폭의 사진 외곽 테두리를 배경(Background) 샘플로 사용하기 위해 x, y 시작점을 10픽셀로 둡니다.
+    x, y = 10, 10 
+    # 가로와 세로 폭을 화면 전체 길이에서 양쪽 테두리 여백 20픽셀을 뺀 크기로 꽉 채워 설정합니다.
+    rect_w, rect_h = w - 20, h - 20 
     # 산출해낸 4가지 수치를 단일 튜플 구조(x, y, w, h)로 변환해서 하나로 강하게 뭉쳐줍니다.
     rect = (x, y, rect_w, rect_h) 
     
@@ -319,8 +319,8 @@ def main():
     cv.grabCut(img, mask, rect, bgdModel, fgdModel, 5, cv.GC_INIT_WITH_RECT) 
     
     # 5. 분류가 끝난 마스크 안에는 네 가지 라벨링 정수(0:배경, 1:전경, 2:배경일듯, 3:전경일듯)가 복잡하게 산재해 있습니다. 후처리 정리가 시급합니다.
-    # Numpy의 where 불리언 잣대를 사용하여 값이 2(배경일듯) 와 0(순수배경)일 경우 가차없이 0(검은색)으로 치환하고 나머지를 1로 바꿔 완전한 이진 데이터 파이프라인으로 캐스팅합니다.
-    mask_binary = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8') 
+    # Numpy의 where 불리언 잣대를 사용하여 값이 cv.GC_PR_BGD 와 cv.GC_BGD 일 경우 가차없이 0(검은색)으로 치환하고 나머지를 1로 바꿔 완전한 이진 데이터 파이프라인으로 캐스팅합니다.
+    mask_binary = np.where((mask == cv.GC_PR_BGD) | (mask == cv.GC_BGD), 0, 1).astype('uint8') 
     
     # 6. 원본 이미지 행렬 스칼라에 이진 마스크 행렬을 무작위 곱셈하여, 배경 영역(0)은 무색 암흑화시키고 컵 영역(1)만 밝기 100%를 통과시키도록 오버레이시킵니다.
     # 이때 3차원 컬러 사진과 차원 축을 맞추고자 np.newaxis 트릭으로 억지로 마스크의 채널을 1개 증폭시켜줍니다.
